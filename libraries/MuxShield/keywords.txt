@@ -1,0 +1,28 @@
+#######################################
+# Syntax Coloring Map for MuxShield
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+MuxShield	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+setMode		KEYWORD2
+digitalWriteMS	KEYWORD2
+digitalReadMS	KEYWORD2
+analogReadMS	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+DIGITAL_IN	LITERAL1
+DIGITAL_IN_PULLUP	LITERAL1
+DIGITAL_OUT	LITERAL1
+ANALOG_IN	LITERAL1
+
