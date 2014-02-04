@@ -7,15 +7,20 @@
 
 // include library
 #include <PIRMotion.h>
+#include <PIRMotionClient.h>
+#include <ClientOwner.h>
 // connected to digital2, use internal pullup
-PIRMotion pirm(2, 1); 
+PIRMotion<PIRMotionClient> pirm(2, 1); 
+PIRMotionClient cl;
 
 void setup() {
 	Serial.begin(9600);
-	pirm.setMotionCallback(pirmCallback);
 	pinMode(LED_PIN, OUTPUT);
 
 	// pirm.setLagAfterMotion(5);
+
+	pirm.registerClient(&cl);
+	cl.setCallback(pirmCallback);
 }
 
 void loop() {

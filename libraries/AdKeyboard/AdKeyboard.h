@@ -7,7 +7,9 @@
 #ifndef _ADKEYBOARD_H_
 #define _ADKEYBOARD_H_
 
-#include <Arduino.h>
+#include "Arduino.h"
+#include "AdKeyboardClient.h"
+#include "ClientOwner.h"
 
 // timeout for long press
 #define ADKEY_PRESS_TIMEOUT 2000
@@ -24,7 +26,12 @@ enum AdStateEnum {
 	AdPressed   // pressed, duration > this->pressTimeout
 };
 
-class AdKeyboard {
+// template declaration
+template<class T> class AdKeyboard;
+
+// specialized definition
+template<>
+class AdKeyboard<AdKeyboardClient>: public ClientOwner<AdKeyboardClient> {
 public:
 	// constructor
 	AdKeyboard(int analogPort);
@@ -35,17 +42,6 @@ public:
 	// sets timeout value for long press
 	void setPressTimeout(int val);
 
-	// short press handler for button
-	void setClickCallback(void (*callback)(int but));
-
-	// long press handler for button
-	void setPressCallback(void (*callback)(int but));
-
-	// handler for two-button press at the same time.
-	// but a button with a greater index must be pressed first to able to detect it
-	// since lower-indexed button masks higher-indexed one.
-	void setTwoPressCallback(void (*callback)(int but1, int but2));
-
 private:
 	int port; // analog port
 	int pressTimeout; // timeout value for hold to change state from 'On'->'Pressed'
@@ -54,11 +50,11 @@ private:
 	int lastVal; // last value 
 	int handled; // if any callback executed 
 
-	void (*clickCallback)(int but);
-	void (*pressCallback)(int but);
-	void (*twoPressCallback)(int but1, int but2);
-
 	int getKey(int val);
+
+	void informClick(int);
+	void informPress(int);
+	void informTwoPress(int, int);
 };
 
 #endif

@@ -5,17 +5,20 @@
 
 #include "Keypad2.h"
 
-Keypad2::Keypad2(uint8_t useDefaultLayout) {
-	this->pressCallback = NULL;
+Keypad2<Keypad2Client>::Keypad2(uint8_t useDefaultLayout): \
+		ClientOwner<Keypad2Client>() {
+	// this->pressCallback = NULL;
 	this->nextTime =0;
 
 	if(useDefaultLayout) {
-		this->setLayout(4, 3, (char **)kp2DefaultLayout, (uint8_t *)kp2DefaultStateHolder, \
+		this->setLayout(4, 3, (char **)kp2DefaultLayout, \
+				(uint8_t *)kp2DefaultStateHolder, \
 				(int *)kp2RowPins, (int *)kp2ColPins, 1);
 	} 
 };
 
-void Keypad2::setLayout(int rowc, int colc, char **l, uint8_t *keyState, \
+void Keypad2<Keypad2Client>::setLayout(int rowc, int colc, \
+		char **l, uint8_t *keyState, \
 		int *rowp, int *colp, uint8_t useInternalPullup) {
 	this->rowc = rowc;
 	this->colc = colc;
@@ -39,11 +42,7 @@ void Keypad2::setLayout(int rowc, int colc, char **l, uint8_t *keyState, \
 	this->nextTime = millis()+KP2_SCAN_INTERVAL;
 }
 
-void Keypad2::setPressCallback(void (*callback)(char keyChar, uint8_t updown)) {
-	this->pressCallback = callback;
-}
-
-void Keypad2::update() {
+void Keypad2<Keypad2Client>::update() {
 	if(millis() < this->nextTime)
 		return;
 
@@ -59,7 +58,7 @@ void Keypad2::update() {
 			// key[r,c] is not pressed
 			if(digitalRead(this->rowp[r])) {
 				if(state == KP2_KEYDOWN) 
-					this->callPressCallback(r, c, KP2_KEYUP);
+					this->informClients(r, c, KP2_KEYUP);
 				if(state != KP2_KEYUP)
 					this->setKeyState(stateIdx, KP2_KEYUP);
 			}
@@ -68,7 +67,7 @@ void Keypad2::update() {
 					this->setKeyState(stateIdx, KP2_PENDING);
 				else if(state == KP2_PENDING) {
 					this->setKeyState(stateIdx, KP2_KEYDOWN);
-					this->callPressCallback(r, c, KP2_KEYDOWN);
+					this->informClients(r, c, KP2_KEYDOWN);
 				}
 			}
 		}
@@ -80,28 +79,28 @@ void Keypad2::update() {
 	this->nextTime = millis()+KP2_SCAN_INTERVAL;
 }
 
-void Keypad2::callPressCallback(int r, int c, uint8_t updown) {
-	// call press callback if exists
-	if(this->pressCallback != NULL) {
-		char keyChar = this->layout[r*this->colc+c];
-		this->pressCallback(keyChar, updown);
+void Keypad2<Keypad2Client>::informClients(int r, int c, uint8_t updown) {
+	char keyChar = this->layout[r*this->colc+c];
+	for(int i=0; i<5; i++) {
+		if(this->client[i]!=NULL) 
+			this->client[i]->invokeKp2PressCallback(keyChar, updown);
 	}
 }
 
-uint8_t Keypad2::getKeyState(int stateIdx) {
+uint8_t Keypad2<Keypad2Client>::getKeyState(int stateIdx) {
 	uint8_t sb = this->keyState[stateIdx/8];
 	int pos = stateIdx%8;
 	return (sb>>pos)&0x03;
 }
 
-void Keypad2::setKeyState(int stateIdx, uint8_t state) {
+void Keypad2<Keypad2Client>::setKeyState(int stateIdx, uint8_t state) {
 	uint8_t *sb = this->keyState+stateIdx/8;
 	int pos = stateIdx%8;
 	bitWrite(*sb, pos, bitRead(state, 0));
 	bitWrite(*sb, pos+1, bitRead(state, 1));
 }
 
-void Keypad2::printLayout() {
+void Keypad2<Keypad2Client>::printLayout() {
 	Serial.println();
 	Serial.print("row count: "); 
 	Serial.print(this->rowc);

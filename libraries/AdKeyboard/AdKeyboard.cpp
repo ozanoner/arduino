@@ -6,25 +6,22 @@
 
 #include "AdKeyboard.h"
 
-AdKeyboard::AdKeyboard(int analogPort) {
+AdKeyboard<AdKeyboardClient>::AdKeyboard(int analogPort): ClientOwner<AdKeyboardClient>() {
 	this->port = analogPort;
 	this->lastTime = 0;
 	this->lastVal = 1023;
 	this->handled = 0;
-	this->clickCallback = NULL;
-	this->pressCallback = NULL;
-	this->twoPressCallback = NULL;
 	this->pressTimeout = ADKEY_PRESS_TIMEOUT;
 	for(int i=0; i<5; i++) {
 		this->keyState[i]=0;
 	}
 }
 
-void AdKeyboard::setPressTimeout(int val) {
+void AdKeyboard<AdKeyboardClient>::setPressTimeout(int val) {
 	this->pressTimeout = val;
 }
 
-void AdKeyboard::update() {
+void AdKeyboard<AdKeyboardClient>::update() {
 	unsigned long now = millis();
 	unsigned long interval = now - this->lastTime;
 	
@@ -75,15 +72,13 @@ void AdKeyboard::update() {
 					continue;
 				if(this->keyState[i] == AdOn)
 				{
-					if(this->twoPressCallback != NULL)
-						this->twoPressCallback(key, i);
+					this->informTwoPress(key, i);
 					this->handled = 1;
 					break;
 				}
 			}
 			if(!this->handled) {
-				if(this->pressCallback != NULL)
-					this->pressCallback(key);
+				this->informPress(key);
 				this->handled =1;
 			}
 		}
@@ -93,8 +88,7 @@ void AdKeyboard::update() {
 		if(!this->handled) {
 			for(int i=0; i<5; i++) {
 				if(this->keyState[i]==AdOn) {
-					if(this->clickCallback!=NULL)
-						this->clickCallback(i);
+					this->informClick(i);
 					break;
 				}
 			}
@@ -111,22 +105,31 @@ void AdKeyboard::update() {
 	this->lastVal = val;
 }
 
-void AdKeyboard::setClickCallback(void (*callback)(int but)) {
-	this->clickCallback = callback;
-}
-
-void AdKeyboard::setPressCallback(void (*callback)(int but)) {
-	this->pressCallback = callback;
-}
-
-void AdKeyboard::setTwoPressCallback(void (*callback)(int but1, int but2)) {
-	this->twoPressCallback = callback;
-}
-
-int AdKeyboard::getKey(int val) {
+int AdKeyboard<AdKeyboardClient>::getKey(int val) {
 	for(int i=0; i<5; i++) {
 		if(val<ADKEY_KEY_VALUE[i])
 			return i;
 	}
 	return -1;
+}
+
+void AdKeyboard<AdKeyboardClient>::informClick(int b) {
+	for(int i=0; i<5; i++) {
+		if(this->client[i]!=NULL)
+			this->client[i]->invokeAdClickCallback(b);
+	}
+}
+
+void AdKeyboard<AdKeyboardClient>::informPress(int b) {
+	for(int i=0; i<5; i++) {
+		if(this->client[i]!=NULL)
+			this->client[i]->invokeAdPressCallback(b);
+	}
+}
+
+void AdKeyboard<AdKeyboardClient>::informTwoPress(int b1, int b2) {
+	for(int i=0; i<5; i++) {
+		if(this->client[i]!=NULL)
+			this->client[i]->invokeAdTwoPressCallback(b1, b2);
+	}
 }

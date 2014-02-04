@@ -6,7 +6,8 @@
 #include <Arduino.h>
 #include "PIRMotion.h"
 
-PIRMotion::PIRMotion(int port, uint8_t useInternalPullup) {
+PIRMotion<PIRMotionClient>::PIRMotion(int port, uint8_t useInternalPullup): \
+		ClientOwner<PIRMotionClient>() {
 	this->port = port;
 	pinMode(port, INPUT);
 	if(useInternalPullup)
@@ -15,13 +16,12 @@ PIRMotion::PIRMotion(int port, uint8_t useInternalPullup) {
 	this->timeLag = 0;
 }
 
-void PIRMotion::update() {
+void PIRMotion<PIRMotionClient>::update() {
 	unsigned long now = millis();
 	if(this->nextRead > now)
 		return;
 	if(digitalRead(this->port) == LOW) {
-		if(this->callback != NULL)
-			this->callback();
+		this->informClients();
 		this->nextRead = now + PIRM_SCAN_INTERVAL + this->timeLag;
 	}
 	else {
@@ -29,10 +29,11 @@ void PIRMotion::update() {
 	}
 }
 
-void PIRMotion::setMotionCallback(void (*callback)(void)) {
-	this->callback = callback;
+void PIRMotion<PIRMotionClient>::setLagAfterMotion(int secs) {
+	this->timeLag = secs * 1000;
 }
 
-void PIRMotion::setLagAfterMotion(int secs) {
-	this->timeLag = secs * 1000;
+void PIRMotion<PIRMotionClient>::informClients() {
+	for(int i=0; i<5; i++)
+		this->client[i]->invokePMotCallback();
 }

@@ -18,6 +18,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifndef _FLASH_H_
+#define _FLASH_H_
+
 #include <avr/pgmspace.h>
 #if ARDUINO >= 100
 #include "Arduino.h"
@@ -228,3 +231,5 @@ inline Print &operator <<(Print &stream, const _FLASH_TABLE<T> &printable)
 inline Print &operator <<(Print &stream, const _FLASH_STRING_ARRAY &printable) 
 { printable.print(stream); return stream; }
 
+
+#endif
