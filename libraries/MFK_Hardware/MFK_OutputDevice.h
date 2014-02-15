@@ -1,11 +1,7 @@
 /*
- * Almost adapter pattern.
- * Provides output functions needed in that kind of projects.
- * If you declare a class with pure functions 
- * and client code refers to that class
- * and MFK_OutputDevice implements that pure functions,
- * then MFK_OutputDevice becomes an example of adapter pattern.
- * However, it is unnecessary for this time.
+ * by Ozan Oner
+ *
+ * output device for MFK project
  */
 
 #ifndef _MFK_OUTPUTDEVICE_H_

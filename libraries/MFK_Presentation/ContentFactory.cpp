@@ -48,7 +48,7 @@ ContentFactory::ContentFactory() {
 	for(int i=0; i<5; i++)  // operation type
 		for(int j=0; j<3; j++) // content level
 			this->contentProvider[i][j] = NULL;
-	randomSeed(analogRead(RANDOM_SEED_PIN));
+	randomSeed(analogRead(MFK_RANDOM_SEED_PIN));
 }
 
 // addition contents
@@ -127,7 +127,8 @@ void ContentP_4_2(char *content, int &answer) {
 }
 */
 
-ContentProvider* ContentFactory::getContentProvider(OperationTypeEnum op, ContentLevelEnum level) {
+const ContentProvider* ContentFactory::getContentProvider(OperationTypeEnum op,\
+	   	ContentLevelEnum level) {
 	if(this->contentProvider[op][level] != NULL)
 		return this->contentProvider[op][level];
 

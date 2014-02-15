@@ -1,3 +1,8 @@
+/*
+ * by Ozan Oner
+ *
+ * UI class to show content
+ */
 
 
 #ifndef _PAGE_H_
@@ -7,34 +12,40 @@
 #include "VisualItem.h"
 #include "Chapter.h"
 
-#define QUIZ_TIMEOUT 3 // in minutes
+#define QUIZ_TIMEOUT 300000 // in ms (5mins)
 
 class Page: public VisualItem {
-protected:
-	Chapter* chapter;
-	Chapter::ChapterTypeEnum chapterType;
-	ContentFactory::OperationTypeEnum opType;
-	ContentFactory::ContentLevelEnum contentLevel;
-	Timer* timer;
-	int eventId;
 public:
 	Page(char *title);
-	// timer is to detect quiz end
-	Page(char *title, Timer* t);
 
 	// will be used to create chapter 
 	void setChapterProperties(Chapter::ChapterTypeEnum, \
 			ContentFactory::OperationTypeEnum, \
 			ContentFactory::ContentLevelEnum);
 			
+	// show on lcd
+	void show();
 
-	virtual uint8_t evaluate(char c);
-	virtual void show();
+	// update in loop
+	void update();
+
+protected:
+	// content related variables
+	Chapter* chapter;
+	Chapter::ChapterTypeEnum chapterType;
+	ContentFactory::OperationTypeEnum opType;
+	ContentFactory::ContentLevelEnum contentLevel;
 	
-	// will be called in timer callback
-	void quizEnded();
-};
+	// quiz time tracking
+	static unsigned long QUIZ_END_TIME;
+	static uint8_t IN_QUIZ;
 
-void timerCallbackForQuizEnd();
+	// initializes above quiz variables
+	void initQuiz();
+
+	// user input evaluation
+	virtual uint8_t evaluate(char c);
+	
+};
 
 #endif

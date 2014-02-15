@@ -6,6 +6,10 @@
 #include <BuzzerSignalSource.h>
 #include <Timer.h>
 
+#include <PIRMotion.h>
+#include <PIRMotionClient.h>
+#include <ClientOwner.h>
+
 #define MFK_SIG_LOOKATME	0
 #define MFK_SIG_CORRECT		1
 #define MFK_SIG_WRONG		2
@@ -13,9 +17,13 @@
 
 #define MFK_BUZZER_PIN 12
 #define MFK_LED_PIN    13
+#define MFK_PIRM_PIN    11
+
 
 SignalController* signalController;
 Timer timer;
+PIRMotion<PIRMotionClient> pirm(MFK_PIRM_PIN, 1); 
+PIRMotionClient cl;
 
 void triggerSignal(int sigIdx) {
 	SignalPattern *p = signalController->getPattern(sigIdx);
@@ -57,6 +65,10 @@ void signal(int signalIdx) {
 	signalController->start(signalIdx);
 }
 
+void pirmCallback() {
+      Serial.println("pirmCallback");
+  signal(MFK_SIG_LOOKATME);
+}
 
 void setup() {
 	Serial.begin(9600);
@@ -97,9 +109,15 @@ void setup() {
 
 	delay(3000);
 	signal(MFK_SIG_ERR);
+
+    Serial.println("after setup signal");
+        pirm.registerClient(&cl);
+	cl.setCallback(pirmCallback);
+    Serial.println("pirm initialized");
 }
 
 void loop() {
 	timer.update();
 	signalController->update();
+        pirm.update();
 }

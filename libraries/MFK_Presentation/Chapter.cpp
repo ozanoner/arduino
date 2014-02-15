@@ -5,7 +5,7 @@ char Chapter::CONTENT[32];
 char Chapter::MESS[32];
 int  Chapter::ANSWER;
 
-Chapter::Chapter(Chapter::ChapterTypeEnum t, ContentProvider* cp) {
+Chapter::Chapter(Chapter::ChapterTypeEnum t, const ContentProvider* cp) {
 	this->chapterType = t;
 	for(int i=0; i<5; i++)
 		this->contentP[i]=NULL;
@@ -22,7 +22,7 @@ Chapter* Chapter::createChapter(Chapter::ChapterTypeEnum ct, \
 	ContentFactory *cf = ContentFactory::getInstance();
 	if(ct==Chapter::QuizChapter)
 		cl=ContentFactory::Level1Content;
-	ContentProvider *cp = cf->getContentProvider(ot, cl);
+	const ContentProvider *cp = cf->getContentProvider(ot, cl);
 	if(cp==NULL)
 		return NULL;
 	Serial.print(F("content created "));
@@ -43,18 +43,10 @@ Chapter* Chapter::createChapter(Chapter::ChapterTypeEnum ct, \
 	return c;
 }
 
-Chapter::ChapterTypeEnum Chapter::getType() {
-	return this->chapterType;
-}
-
-void Chapter::addContentProvider(ContentProvider* cp) {
+void Chapter::addContentProvider(const ContentProvider* cp) {
 	if(this->cpCount>=5 || cp==NULL)
 		return;
 	this->contentP[this->cpCount++]=cp;
-}
-
-char* Chapter::getMessage() {
-	return Chapter::MESS;
 }
 
 char* Chapter::next() {
@@ -64,12 +56,14 @@ char* Chapter::next() {
 	Serial.print(F("chapter type: "));
 	Serial.println(this->chapterType);
 	*/
+	/*
 	Serial.print(F("stats: "));
 	Serial.print(this->totalCnt);
 	Serial.print("/");
 	Serial.print(this->correctCnt);
 	Serial.print(" ");
 	Serial.println(this->tryCnt);
+	*/
 
 	switch(this->chapterType) {
 		case NormalChapter:

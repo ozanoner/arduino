@@ -31,8 +31,10 @@ const char kp2DefaultLayout[4][3] = {
 // 12*2/8 = 3 bytes for default layout
 const uint8_t kp2DefaultStateHolder[3] = {0, 0, 0};
 
-const int kp2RowPins[4] = {2,3,4,5}; // connect to keypad pins 2,7,6,4 respectively
-const int kp2ColPins[3] = {6,7,8};   // connect to keypad pins 3,1,5 respectively
+// connect to keypad pins 2,7,6,4 respectively
+const int kp2RowPins[4] = {2,3,4,5}; 
+// connect to keypad pins 3,1,5 respectively
+const int kp2ColPins[3] = {6,7,8};   
 // end of default layout
 
 // template declaration

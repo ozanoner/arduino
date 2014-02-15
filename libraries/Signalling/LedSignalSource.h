@@ -1,4 +1,9 @@
 
+/*
+ * by Ozan Oner
+ * LED signal by using simple LED and a resistor
+ */
+
 #ifndef _LED_SIGNALSOURCE_H_
 #define _LED_SIGNALSOURCE_H_
 

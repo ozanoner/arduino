@@ -1,6 +1,6 @@
 /*
- * base for signal classes
- *
+ * by Ozan Oner
+ * base class for signal sources
  */
 
 #ifndef _SIGNALSOURCE_H_
@@ -10,21 +10,21 @@
 
 #define MAX_SIGNAL_PATTERN 10
 
-
-
 class SignalSource {
 protected:
+	// typedef for offsets structure in a signalling period
 	typedef struct SigOffsetS {
 		int onOffset;
 		int offOffset;
 	} SigOffset;
 
-	uint8_t isOn; // in an active period
-	uint8_t isDisabled; // totally disabled
+	// means that the time is between nextOn & nextOff
+	uint8_t isOn; 
+	// signal source is disabled
+	uint8_t isDisabled; 
 
 	// holds for each signal pattern
 	SigOffset *offset[MAX_SIGNAL_PATTERN];
-
 
 	// offset values to calculate next active period
 	int onOffset;
@@ -44,9 +44,9 @@ public:
 	void activate(int sigIdx);
 
 	uint8_t getIsOn() { return this->isOn; };
-	// starts signal source in a signalling period
+	// starts signal source at nextOn
 	virtual void on() { this->isOn = 1; };
-	// stops signal source in a signalling period
+	// stops signal source at nextOff
 	virtual void off() { this->isOn = 0; };
 
 	// called by a signal pattern to inform for the start of a period
@@ -54,9 +54,7 @@ public:
 	// called by a signal pattern to inform for the end of pattern
 	void disable() { this->isDisabled = 1; }
 
-	// virtual void update()=0; // pure virtual
-	
-	// tracking of signalling in a pattern
+	// update in loop
 	virtual void update(); 
 };
 

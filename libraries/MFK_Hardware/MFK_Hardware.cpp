@@ -3,33 +3,41 @@
 
 
 MFK_Hardware::MFK_Hardware() {
-	this->pirm = new PIRMotion<PIRMotionClient>(MFK_PIR_MOTION_PIN, 1);
-	this->pirm->setLagAfterMotion(60);
-	this->pirm->registerClient(this);
-
 	this->signalController = SignalController::getInstance();
 
 	ss = new SoftwareSerial(MFK_OUTDEV_RX, MFK_OUTDEV_TX);
 	this->outDev = new MFK_OutputDevice(ss);
 
 	this->inpDev = new MFK_InputDevice<MFK_InputDeviceClient>();
+
+	if(MOTION_DETECT_ENABLED) {
+		this->pirm = new PIRMotion<PIRMotionClient>(MFK_PIR_MOTION_PIN, 1);
+	}
 }
 
 void MFK_Hardware::begin() {
 	this->ss->begin(9600);
 	this->constructSignalPatterns();
+	this->signal(MFK_SIG_ERR);
+
+	this->pirm->setReportInterval(PIR_REPORT_INTERVAL);
+	this->pirm->setLagAfterMotion(PIR_LAG);
+	this->pirm->registerClient(this);
 }
 
 void MFK_Hardware::update() {
 	this->timer.update();
 	this->inpDev->update();
 	this->signalController->update();
-	this->pirm->update();
+	if(MOTION_DETECT_ENABLED)
+		this->pirm->update();
 }
 
 void MFK_Hardware::invokePMotCallback(void) {
-	if(SIGNALLING_ENABLED && this->inpDev->isIdle())
+	if(SIGNALLING_ENABLED && this->inpDev->isIdle()) {
+		Serial.println(F("motion detected"));
 		this->signal(MFK_SIG_LOOKATME);
+	}
 }
 
 
@@ -71,43 +79,47 @@ void MFK_Hardware::constructSignalPatterns() {
 
 void MFK_Hardware::signal(int signalIdx) {
 	if(SIGNALLING_ENABLED) {
-		Serial.print(F("signal: "));
-		Serial.println(signalIdx);
-		this->signalController->startPattern(signalIdx);
+		this->signalController->start(signalIdx);
 	} 
-	else {
-		Serial.println(F("signalling disabled"));
-	}
 }
 
 
 
 int MFK_Hardware::runSignal(int sigIdx) {
+	/*
 	Serial.print(F("runSignal: "));
 	Serial.println(sigIdx);
+	*/
 	switch(sigIdx) {
 		case MFK_SIG_LOOKATME:
-			return this->timer.every(3000, MFK_LookAtMe_Trigger, 3);
+			return this->timer.every(MFK_SIG_LOOKATME_PERIOD, \
+					MFK_LookAtMe_Trigger, 3);
 		case MFK_SIG_CORRECT:
-			return this->timer.every(100, MFK_SigCorrect_Trigger, 1);
+			return this->timer.every(MFK_SIG_DEFAULT_PERIOD, \
+					MFK_SigCorrect_Trigger, 1);
 		case MFK_SIG_WRONG:
-			return this->timer.every(100, MFK_SigWrong_Trigger, 2);
+			return this->timer.every(MFK_SIG_DEFAULT_PERIOD, \
+					MFK_SigWrong_Trigger, 2);
 		case MFK_SIG_ERR:
-			return this->timer.every(100, MFK_SigErr_Trigger, 3);
+			return this->timer.every(MFK_SIG_DEFAULT_PERIOD, \
+					MFK_SigErr_Trigger, 3);
 		default:
 			break;
 	}
 	return -1;
 }
 void MFK_Hardware::triggerSignal(int sigIdx) {
+	// const SignalPattern *p = this->signalController[sigIdx];
 	SignalPattern *p = this->signalController->getPattern(sigIdx);
 	if(p!=NULL) {
+		/*
 		Serial.print(F("sigIdx: "));
 		Serial.println(sigIdx);
+		*/
 		p->trigger();
 	}
 	else {
-		Serial.println(F("no signal pattern"));
+		// Serial.println(F("no signal pattern"));
 	}
 }
 

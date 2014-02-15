@@ -18,15 +18,15 @@ void SignalController::setPattern(int idx, SignalPattern *pattern) {
 	if(idx<0 || idx>=10)
 		return;
 	this->signalPatterns[idx] = pattern;
-	// Serial.print(F("setPattern: "));
-	// Serial.println(idx);
+	Serial.print(F("setPattern: "));
+	Serial.println(idx);
 }
 
-void SignalController::startPattern(int idx) {
+void SignalController::start(int idx) {
 	if(idx<0 || idx>=10)
 		return;
 	if(this->signalPatterns[idx] == NULL) {
-		// Serial.println(F("startPattern: no signal pattern"));
+		Serial.println(F("startPattern: no signal pattern"));
 		return;
 	}
 	if(this->activePattern != NULL)
@@ -36,7 +36,7 @@ void SignalController::startPattern(int idx) {
 	// Serial.print(F("startPattern"));
 }
 
-void SignalController::stopPattern() {
+void SignalController::stop() {
 	if(this->activePattern == NULL)
 		return;
 	this->activePattern->stop();
@@ -44,8 +44,13 @@ void SignalController::stopPattern() {
 }
 
 void SignalController::update() {
+	if(this->activePattern == NULL)
+		return;
+	this->activePattern->update();
+	/*
 	for(int i=0; i<10; i++) {
 		if(this->signalPatterns[i] != NULL)
 			this->signalPatterns[i]->update();
 	}
+	*/
 }

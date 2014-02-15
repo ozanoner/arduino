@@ -23,7 +23,7 @@ void BuzzerSignalSource::off() {
 		return;
 	this->timer->stop(this->timerId);
 	digitalWrite(this->pin, LOW);
-	Serial.println(F("BuzzerSignalSource off"));
+	// Serial.println(F("BuzzerSignalSource off"));
 	SignalSource::off();
 }
 

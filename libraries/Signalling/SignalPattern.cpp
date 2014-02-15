@@ -27,11 +27,12 @@ void SignalPattern::start() {
 	for(int i=0; i<this->cnt; i++)
 		this->signalSources[i]->activate(this->id);
 	this->timerId = this->startProc();
-	// Serial.print(F("signalPattern.start: "));
-	// Serial.println(this->timerId);
+	Serial.print(F("signalPattern.start: "));
+	Serial.println(this->timerId);
 }
 
 void SignalPattern::stop() {
+	Serial.println(F("signalPattern::stop"));
 	this->timer->stop(this->timerId);
 	for(int i=0; i<this->cnt; i++)
 		this->signalSources[i]->disable();

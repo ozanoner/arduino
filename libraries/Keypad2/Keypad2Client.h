@@ -1,3 +1,7 @@
+/*
+ * by Ozan Oner
+ * base class for Keypad2 clients
+ */
 
 #ifndef _KEYPAD2_CLIENT_H_
 #define _KEYPAD2_CLIENT_H_

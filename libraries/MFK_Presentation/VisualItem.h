@@ -1,9 +1,7 @@
 
 /*
- * Command pattern.
- * ACTIVE_ITEM receives user inputs with its 'invokeMFKInputCallback' function 
- * and takes action accordingly. 'evaluate' function differs 
- * for each receiver implementation.
+ * by Ozan Oner
+ * base class for UI classes
  */
 
 #ifndef _VISUAL_ITEM_H_
@@ -16,13 +14,16 @@
 #include "MFK_InputDeviceClient.h"
 
 
-#define BUFFER_SIZE 3
+#define BUFFER_SIZE 3 // for user input
 
 class VisualItem: MFK_InputDeviceClient {
 protected:
 	char *title;
+	// upper level UI item (menu)
 	VisualItem *parent;
+	// output device
 	MFK_OutputDevice *outDev;
+	// each subclass manages its own content by using that pointer
 	char *content;
 	
 	// input buffer
@@ -36,37 +37,39 @@ protected:
 	static int HW_INPUT_ID;
 	
 
+	// msgbox related members
 	static unsigned long MSG_END_TIME;
 	static uint8_t MSG_ON;
 	static VisualItem* NEXT_ITEM;
 
-	// directs input to ACTIVE_ITEM from MFK_InputDevice
+	// directs input from MFK_InputDevice to ACTIVE_ITEM 
 	void invokeMFKInputCallback(char);
-
-	void parentShow();
+	// evaluate keyboard input
+	virtual uint8_t evaluate(char);
 public:
 	VisualItem(char *title);
 
-	void setParent(VisualItem *p) {
-		this->parent = p;
-	};
-	VisualItem* getParent() {
-		return this->parent;
-	};
-	char *getTitle();
+	void setParent(VisualItem *p) { this->parent = p; };
+	VisualItem* getParent() { return this->parent; };
+	const char* getTitle() { return this->title; };
 
-	static VisualItem* getActiveItem();
+	static VisualItem* getActiveItem() { return VisualItem::ACTIVE_ITEM; };
 
-	void update();
+	// update in loop
+	virtual void update();
 
-	virtual uint8_t evaluate(char);
+	// show on outputDev
 	virtual void show();
+	// return to parent
 	virtual void exit();
 
+	// different message box functions
+	// shows a message on the outputDev and returns to 'next'
 	void msgbox(char *msg, VisualItem* next);
 	void msgbox(char *msg, unsigned long duration, VisualItem* next);
 	// signalType from MFK_Hardware.h MFK_SIG_*
-	void msgbox(char *msg, unsigned long duration, uint8_t signalType, VisualItem* next);
+	void msgbox(char *msg, unsigned long duration, \
+			uint8_t signalType, VisualItem* next);
 	void msgboxerr(char *msg, VisualItem* next);
 };
 

@@ -21,12 +21,12 @@ uint8_t Menu::addMenuItem(VisualItem *item) {
 
 
 void Menu::show() {
+	VisualItem::show();
 	if(VisualItem::MSG_ON)
 		return;
-	VisualItem::show();
 	if(!this->content[0]) {
 		char *s=this->content;
-		char *title;
+		const char *title;
 		for(int i=0; i<this->itemCnt; i++) {
 			title = this->menuItem[i]->getTitle();
 			if(strlen(title)+strlen(s)>=MENU_CONTENT_SIZE)
@@ -35,6 +35,7 @@ void Menu::show() {
 			s+=strlen(s);
 		}
 	}
+	Serial.println(F("in Menu::show"));
 	this->outDev->print(this->content);
 }
 

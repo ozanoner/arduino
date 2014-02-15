@@ -36,7 +36,9 @@
 #define SL_CMD_SPLASH_TOGGLE 0x1E
 
 
-#include <Arduino.h>
+#include "Arduino.h"
+
+// TODO: derive from Arduino Print class
 
 class SerialLcd {
 public:

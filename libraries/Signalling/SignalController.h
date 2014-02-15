@@ -1,4 +1,11 @@
 
+/*
+ * by Ozan Oner
+ * top level class for signalling.
+ * holds signal patterns.
+ * singleton pattern
+ */
+
 #ifndef _SIGNALCONTROLLER_H_
 #define _SIGNALCONTROLLER_H_
 
@@ -6,14 +13,8 @@
 #include "SignalPattern.h"
 
 class SignalController {
-private:
-	SignalPattern *signalPatterns[MAX_SIGNAL_PATTERN];
-	SignalPattern *activePattern;
-
-	SignalController(); // private constructor
-	SignalController(SignalController const&) {}; // copy disabled
-	void operator=(SignalController const&) {}; // assignment disabled
 public:
+	// access to singleton instance
 	static SignalController* getInstance() {
 		static SignalController s;
 		return &s;
@@ -23,12 +24,27 @@ public:
 	void setPattern(int idx, SignalPattern *pattern);
 	
 	// start a pattern
-	void startPattern(int idx);
+	void start(int idx);
 	// immidiate stop to activePattern
-	void stopPattern();
+	void stop();
 
-
+	// update in loop
 	void update();
+
+	const SignalPattern* operator[](unsigned int idx) const {
+		if(idx>=MAX_SIGNAL_PATTERN)
+			return NULL;
+		return this->signalPatterns[idx];
+	};
+
+private:
+	SignalPattern* signalPatterns[MAX_SIGNAL_PATTERN];
+	SignalPattern* activePattern;
+
+	SignalController(); // private constructor
+	SignalController(SignalController const&) {}; // copy disabled
+	void operator=(SignalController const&) {}; // assignment disabled
+
 };
 
 #endif

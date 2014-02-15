@@ -1,4 +1,11 @@
 
+/*
+ * by Ozan Oner
+ * signal pattern class which uses signal sources 
+ * to create a signal effect
+ *
+ */
+
 #ifndef _SIGNALPATTERN_H_
 #define _SIGNALPATTERN_H_
 
@@ -8,18 +15,26 @@
 
 class SignalPattern {
 private:
+	// pattern id, set 0 for the first pattern
 	int id;
+	// signal sources for the pattern
 	SignalSource *signalSources[5];
-	int cnt; // count of signalSources
+	// number of signal sources
+	int cnt; 
+	// event id returned by timer call
 	int timerId;
+	// provides trigger functionality for the pattern
 	Timer *timer;
+	// start function for the timer
+	// returns event id
 	int (*startProc)(void);
 
 public:
 	SignalPattern(int id, Timer *timer, int (*startProc)(void));
+	//add a signal source
 	void addSignalSource(SignalSource *ss);
 
-
+	// starts pattern
 	// calls (*startProc), set timerId
 	void start();
 	// stops timer for timerId

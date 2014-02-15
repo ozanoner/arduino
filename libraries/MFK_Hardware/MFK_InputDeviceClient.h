@@ -1,3 +1,8 @@
+/*
+ * by Ozan Oner
+ *
+ * base class for MFK_InputDevice clients
+ */
 
 #ifndef _MFK_InputDeviceClient_H_
 #define _MFK_InputDeviceClient_H_

@@ -1,14 +1,11 @@
 
 #include "Page.h"
 
+unsigned long Page::QUIZ_END_TIME=0;
+uint8_t Page::IN_QUIZ=0;
+
 Page::Page(char *title): VisualItem(title) {
 	this->chapter=NULL;
-}
-
-Page::Page(char *title, Timer* t): VisualItem(title) {
-	this->chapter=NULL;
-	this->timer=t;
-	this->eventId=-1;
 }
 
 void Page::setChapterProperties(Chapter::ChapterTypeEnum ct,\
@@ -22,6 +19,7 @@ void Page::setChapterProperties(Chapter::ChapterTypeEnum ct,\
 void Page::show() {
 	if(VisualItem::MSG_ON)
 		return;
+	uint8_t newshow = VisualItem::ACTIVE_ITEM == this? 0:1;
 	VisualItem::show();
 
 	// lazy instantiation of chapter
@@ -31,23 +29,17 @@ void Page::show() {
 				this->contentLevel);
 		if(this->chapter==NULL) {
 			this->msgboxerr("no data", this->parent);
-			// this->parentShow();
 			return;
 		}
 		Serial.println(F("chapter created"));
+	}
+	if(newshow) {
 		this->chapter->start();
+		this->initQuiz();
 	}
 
 	this->ibIdx = this->chapterType == Chapter::FunChapter? -1:0;
-	if(this->chapterType==Chapter::QuizChapter && this->eventId<0) {
-		this->eventId = this->timer->after(QUIZ_TIMEOUT*60*1000, \
-				timerCallbackForQuizEnd);
-		if(this->eventId<0) {
-			this->msgboxerr("Timer failed", this->parent);
-			// this->parentShow();
-			return;
-		}
-	}
+
 	char *mess = this->chapter->next();
 	if(mess==NULL || !*mess) {
 		mess = this->chapter->getMessage();
@@ -90,18 +82,28 @@ uint8_t Page::evaluate(char c) {
 				this->msgbox(mess, 2000, MFK_SIG_WRONG, this);
 			}
 		}
-		// this->show();
 	}
 	return 1;
 }
 
-void Page::quizEnded() {
-	this->msgbox(this->chapter->getMessage(), 5000, this->parent);
-	// this->parentShow();
+void Page::update() {
+	VisualItem::update();
+	if(VisualItem::MSG_ON)
+		return;
+
+	if(Page::IN_QUIZ && Page::QUIZ_END_TIME<millis()) {
+		this->chapter->end();
+		this->msgbox(this->chapter->getMessage(), 5000, this->parent);
+		Page::IN_QUIZ=0;
+	}
 }
 
-void timerCallbackForQuizEnd() {
-	Page *p = (Page *)VisualItem::getActiveItem();
-	if(p!=NULL)
-		p->quizEnded();
+void Page::initQuiz() {
+	if(this->chapterType == Chapter::QuizChapter) {
+		Page::QUIZ_END_TIME=millis()+QUIZ_TIMEOUT;
+		Page::IN_QUIZ=1;
+	}
+	else {
+		Page::IN_QUIZ=0;
+	}
 }
